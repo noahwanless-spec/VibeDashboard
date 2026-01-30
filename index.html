@@ -136,7 +136,7 @@
       <div id="weather">Loading weather...</div>
     </div>
 
-    <!-- Markets Card (VOO + Treasury + Mortgage) -->
+    <!-- Markets Card -->
     <div class="card">
       <h2>Markets Snapshot</h2>
       <div class="markets">
@@ -149,12 +149,12 @@
     <!-- Calendar Card -->
     <div class="card" id="calendar">
       <h2>My Calendar</h2>
-      <!-- REPLACE THIS WITH YOUR OWN GOOGLE CALENDAR EMBED CODE -->
+      <!-- REPLACE WITH YOUR OWN GOOGLE CALENDAR EMBED -->
       <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York"
               style="border: 0" width="100%" height="500" frameborder="0" scrolling="no">
       </iframe>
       <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">
-        ↑ Swap the src= with your personal calendar embed from Google Calendar settings
+        ↑ Swap src= with your personal embed code from Google Calendar settings
       </p>
     </div>
 
@@ -178,15 +178,16 @@
     </div>
   </div>
 
-  <footer>Vibe coded by Grok • Jan 30, 2026 • Essex, MD • Refresh for live markets</footer>
+  <footer>Vibe coded by Grok • Jan 30, 2026 • Essex, MD • Refresh for live updates</footer>
 
   <script>
-    // Weather fetch (unchanged)
+    const corsProxy = 'https://corsproxy.io/?';
+
+    // Weather
     async function getWeather() {
       try {
-        const res = await fetch(
-          'https://api.open-meteo.com/v1/forecast?latitude=39.309&longitude=-76.475&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York'
-        );
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=39.309&longitude=-76.475&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York';
+        const res = await fetch(corsProxy + encodeURIComponent(url));
         const data = await res.json();
         const current = data.current;
         
@@ -203,16 +204,17 @@
           <p>${desc} • Wind: ${Math.round(current.wind_speed_10m)} mph</p>
         `;
       } catch (err) {
-        document.getElementById('weather').innerHTML = 'Weather fetch failed 😅';
+        document.getElementById('weather').innerHTML = 'Weather failed 😅 (check console)';
       }
     }
     getWeather();
 
-    // Markets fetch: VOO, 10Y Treasury (^TNX), 30Y Mortgage (fallback to recent avg, or use ^FVX for proxy if needed; here using known patterns)
+    // Markets: VOO + 10Y Treasury + Mortgage
     async function getMarkets() {
       try {
         // VOO
-        const vooRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/VOO?range=5d&interval=1d');
+        const vooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/VOO?range=5d&interval=1d';
+        const vooRes = await fetch(corsProxy + encodeURIComponent(vooUrl));
         const vooData = await vooRes.json();
         const vooMeta = vooData.chart.result[0].meta;
         const vooPrice = vooMeta.regularMarketPrice || vooMeta.previousClose;
@@ -229,48 +231,143 @@
         `;
 
         // 10Y Treasury (^TNX)
-        const tnxRes = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?range=5d&interval=1d');
+        const tnxUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?range=5d&interval=1d';
+        const tnxRes = await fetch(corsProxy + encodeURIComponent(tnxUrl));
         const tnxData = await tnxRes.json();
         const tnxMeta = tnxData.chart.result[0].meta;
         const tnxYield = tnxMeta.regularMarketPrice || tnxMeta.previousClose;
         const tnxPrev = tnxMeta.previousClose;
         const tnxChange = (tnxYield - tnxPrev).toFixed(3);
-        const tnxClass = tnxChange >= 0 ? 'positive' : 'negative'; // Yields up = rates up
+        const tnxClass = Number(tnxChange) >= 0 ? 'positive' : 'negative';
 
         document.getElementById('treasury').innerHTML = `
           <p><strong>10Y Treasury Yield:</strong> ${tnxYield.toFixed(3)}%</p>
-          <p>Change: <span class="${tnxClass}">${tnxChange >= 0 ? '+' : ''}${tnxChange}%</span></p>
-          <p>(Live via Yahoo • As of last market)</p>
+          <p>Change: <span class="${tnxClass}">${Number(tnxChange) >= 0 ? '+' : ''}${tnxChange}%</span></p>
         `;
 
-        // 30Y Mortgage - Use Freddie Mac weekly avg (no perfect realtime free fetch without key; fallback to recent ~6.10-6.17%, or note source)
-        // For dynamic, we can use a public RSS or static, but here show latest known from sources (update manually or add API if key)
-        // To keep pure no-key: Hardcode recent + note refresh weekly
+        // 30Y Mortgage (weekly avg - static for now)
         document.getElementById('mortgage').innerHTML = `
-          <p><strong>Avg 30Y Fixed Mortgage:</strong> ~6.10-6.17%</p>
-          <p>(Freddie Mac weekly as of Jan 29, 2026: 6.10% • Bankrate: 6.17% • Check FreddieMac.com for latest)</p>
-          <p>Rates vary by lender/credit • Markets influence this</p>
+          <p><strong>Avg 30Y Fixed Mortgage:</strong> 6.10%</p>
+          <p>(Freddie Mac as of Jan 29, 2026 • Next: Feb 5 • Varies by lender)</p>
         `;
 
       } catch (err) {
-        console.error(err);
-        document.getElementById('voo').innerHTML = 'VOO load failed 😅';
-        document.getElementById('treasury').innerHTML = '10Y Treasury failed 😅 Fallback ~4.25%';
-        document.getElementById('mortgage').innerHTML = 'Mortgage load failed 😅 Recent ~6.10-6.17%';
+        console.error('Markets error:', err);
+        document.getElementById('voo').innerHTML = 'VOO failed 😅';
+        document.getElementById('treasury').innerHTML = 'Treasury failed 😅 ~4.25-4.26%';
+        document.getElementById('mortgage').innerHTML = 'Mortgage ~6.10% (weekly)';
       }
     }
     getMarkets();
-    setInterval(getMarkets, 300000); // Refresh every 5 min
+    setInterval(getMarkets, 300000); // 5 min refresh
 
-    // News fetch (unchanged)
+    // News (diverse RSS)
     async function getNews() {
-      // ... (same as before, omitted for brevity)
+      const sources = [
+        { name: 'BBC', url: 'http://feeds.bbci.co.uk/news/rss.xml' },
+        { name: 'Reuters', url: 'https://www.reuters.com/feed/' },
+        { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
+        { name: 'NYT', url: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml' },
+        { name: 'Guardian', url: 'https://www.theguardian.com/international/rss' }
+      ];
+
+      let headlines = '<ul>';
+      for (const source of sources) {
+        try {
+          const res = await fetch(corsProxy + encodeURIComponent(source.url));
+          const text = await res.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, 'text/xml');
+          const items = xml.querySelectorAll('item').slice(0, 2);
+          items.forEach(item => {
+            const title = item.querySelector('title')?.textContent || 'No title';
+            const link = item.querySelector('link')?.textContent || '#';
+            headlines += `<li><a href="${link}" target="_blank">${title}</a> (${source.name})</li>`;
+          });
+        } catch (err) {
+          console.error(`News fail ${source.name}:`, err);
+        }
+      }
+      headlines += '</ul>';
+      document.getElementById('news').innerHTML = headlines || 'News failed 😅';
     }
     getNews();
 
-    // Devotional fetch (full NT sequence, unchanged)
+    // Devotional (full NT sequential)
     async function getDevotional() {
-      // ... (same as previous version, full NT logic)
+      try {
+        const ntBooks = [
+          { name: 'Matthew', chapters: 28, bookId: 40 },
+          { name: 'Mark', chapters: 16, bookId: 41 },
+          { name: 'Luke', chapters: 24, bookId: 42 },
+          { name: 'John', chapters: 21, bookId: 43 },
+          { name: 'Acts', chapters: 28, bookId: 44 },
+          { name: 'Romans', chapters: 16, bookId: 45 },
+          { name: '1 Corinthians', chapters: 16, bookId: 46 },
+          { name: '2 Corinthians', chapters: 13, bookId: 47 },
+          { name: 'Galatians', chapters: 6, bookId: 48 },
+          { name: 'Ephesians', chapters: 6, bookId: 49 },
+          { name: 'Philippians', chapters: 4, bookId: 50 },
+          { name: 'Colossians', chapters: 4, bookId: 51 },
+          { name: '1 Thessalonians', chapters: 5, bookId: 52 },
+          { name: '2 Thessalonians', chapters: 3, bookId: 53 },
+          { name: '1 Timothy', chapters: 6, bookId: 54 },
+          { name: '2 Timothy', chapters: 4, bookId: 55 },
+          { name: 'Titus', chapters: 3, bookId: 56 },
+          { name: 'Philemon', chapters: 1, bookId: 57 },
+          { name: 'Hebrews', chapters: 13, bookId: 58 },
+          { name: 'James', chapters: 5, bookId: 59 },
+          { name: '1 Peter', chapters: 5, bookId: 60 },
+          { name: '2 Peter', chapters: 3, bookId: 61 },
+          { name: '1 John', chapters: 5, bookId: 62 },
+          { name: '2 John', chapters: 1, bookId: 63 },
+          { name: '3 John', chapters: 1, bookId: 64 },
+          { name: 'Jude', chapters: 1, bookId: 65 },
+          { name: 'Revelation', chapters: 22, bookId: 66 }
+        ];
+
+        const startDate = new Date('2026-01-30T00:00:00');
+        const today = new Date();
+        const daysSince = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const totalChapters = 260;
+        const chapterIndex = daysSince % totalChapters;
+
+        let cumulative = 0;
+        let currentBook = null;
+        let chapterNum = 0;
+        for (const book of ntBooks) {
+          if (chapterIndex < cumulative + book.chapters) {
+            currentBook = book;
+            chapterNum = (chapterIndex - cumulative) + 1;
+            break;
+          }
+          cumulative += book.chapters;
+        }
+
+        const devoUrl = `https://bolls.life/get-text/NKJV/${currentBook.bookId}/${chapterNum}/`;
+        const res = await fetch(corsProxy + encodeURIComponent(devoUrl));
+        const verses = await res.json();
+
+        let chapterHtml = `<h3>${currentBook.name} ${chapterNum} (NKJV)</h3>`;
+        verses.forEach(v => {
+          chapterHtml += `<p class="verse"><strong>${v.verse}.</strong> ${v.text}</p>`;
+        });
+
+        chapterHtml += `
+          <div class="overviews">
+            <h4>Scholarly Overviews:</h4>
+            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Voddie Baucham on ${currentBook.name} ${chapterNum}</a>
+            <a href="https://www.youtube.com/results?search_query=paul+washer+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Paul Washer on ${currentBook.name} ${chapterNum}</a>
+            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Ron Carpenter on ${currentBook.name} ${chapterNum}</a>
+            <p>(Click for sermons • Tomorrow: next chapter)</p>
+          </div>
+        `;
+
+        document.getElementById('devotional').innerHTML = chapterHtml;
+      } catch (err) {
+        console.error('Devotional error:', err);
+        document.getElementById('devotional').innerHTML = 'Devotional failed 😅 Read Matthew 1 today!';
+      }
     }
     getDevotional();
   </script>
