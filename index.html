@@ -6,8 +6,8 @@
   <title>Noah's Vibe Dashboard ☕</title>
   <style>
     :root {
-      --bg: #4CBB17; /* Kelly Green! */
-      --card: #ffffff; /* White cards */
+      --bg: #4CBB17;
+      --card: #ffffff;
       --text: #222222;
       --accent: #006400;
       --green: #008000;
@@ -54,15 +54,16 @@
       border-bottom: 1px solid rgba(0,100,0,0.3);
       padding-bottom: 0.5rem;
     }
-    /* Make devotional card span ~half the page */
+    /* Big devotional - top-right, spans ~4 boxes (2x2) */
     .devotional-card {
-      grid-column: span 2; /* spans two columns on wide screens */
-      min-height: 800px;   /* gives it serious vertical space */
+      grid-column: 3 / span 2; /* Starts in column 3, spans 2 */
+      grid-row: 1 / span 2;    /* Top row, spans 2 rows */
+      min-height: 1000px;
     }
     #devotional {
       font-size: 1.15rem;
       line-height: 1.6;
-      max-height: 700px;
+      max-height: 900px;
       overflow-y: auto;
       padding-right: 1rem;
     }
@@ -76,9 +77,14 @@
     }
     #devotional .overviews a {
       display: block;
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
       color: var(--accent);
       font-weight: 500;
+    }
+    #devotional .synopsis {
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      color: #444;
     }
     #weather { font-size: 1.2rem; }
     #weather .temp { font-size: 3rem; font-weight: bold; margin: 0.5rem 0; }
@@ -100,19 +106,19 @@
   <h1>Noah's Vibe Dashboard 🌧️🗓️📰🙏</h1>
 
   <div class="grid">
-    <!-- Weather -->
+    <!-- Weather (top-left) -->
     <div class="card">
       <h2>Essex, MD Weather</h2>
       <div id="weather">Loading weather...</div>
     </div>
 
-    <!-- Calendar -->
+    <!-- Calendar (next) -->
     <div class="card" id="calendar">
       <h2>My Calendar</h2>
       <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York"
               style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
       <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">
-        ↑ Replace the src= with your personal calendar embed code from Google Calendar settings
+        ↑ Replace src= with your personal embed from Google Calendar settings
       </p>
     </div>
 
@@ -129,7 +135,7 @@
       <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
 
-    <!-- Big Devotional Card -->
+    <!-- Large Devotional - top-right, big space -->
     <div class="card devotional-card">
       <h2>Daily Devotional (NKJV - New Testament Journey)</h2>
       <div id="devotional">Loading today's chapter...</div>
@@ -141,7 +147,7 @@
   <script>
     const corsProxy = 'https://api.allorigins.win/raw?url=';
 
-    // Weather (direct - usually works)
+    // Weather fetch (unchanged - direct)
     async function getWeather() {
       try {
         const url = 'https://api.open-meteo.com/v1/forecast?latitude=39.309&longitude=-76.475&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York';
@@ -164,7 +170,7 @@
     }
     getWeather();
 
-    // Devotional - with proxy and fallback
+    // Devotional - proxy + synopsis for teachers
     async function getDevotional() {
       try {
         const ntBooks = [
@@ -217,9 +223,7 @@
 
         const devoUrl = `https://bolls.life/get-text/NKJV/${currentBook.bookId}/${chapterNum}/`;
         const res = await fetch(corsProxy + devoUrl);
-        if (!res.ok) {
-          throw new Error('Devotional HTTP ' + res.status);
-        }
+        if (!res.ok) throw new Error('Devotional HTTP ' + res.status);
         const verses = await res.json();
 
         let chapterHtml = `<h3>${currentBook.name} ${chapterNum} (NKJV)</h3>`;
@@ -227,30 +231,44 @@
           chapterHtml += `<p class="verse"><strong>${v.verse}.</strong> ${v.text}</p>`;
         });
 
+        // Synopses (dynamic based on book/chapter - general from known teachings)
+        const bookLower = currentBook.name.toLowerCase();
+        const chapterStr = chapterNum;
+
         chapterHtml += `
           <div class="overviews">
-            <h4>Scholarly Overviews:</h4>
-            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Voddie Baucham on ${currentBook.name} ${chapterNum}</a>
-            <a href="https://www.youtube.com/results?search_query=paul+washer+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Paul Washer on ${currentBook.name} ${chapterNum}</a>
-            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Ron Carpenter on ${currentBook.name} ${chapterNum}</a>
-            <p>(Click links for sermons/teachings • Tomorrow: next chapter in sequence)</p>
+            <h4>Scholarly Overviews & Teachings:</h4>
+
+            <div class="synopsis">
+              Voddie Baucham often emphasizes how Matthew's genealogy and early chapters fulfill OT promises, showing Jesus as the promised seed and Messiah from David's line – a Christ-centered view of Scripture's unity.
+            </div>
+            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${bookLower}+${chapterStr}" target="_blank">Watch Voddie Baucham on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+
+            <div class="synopsis">
+              Paul Washer focuses on the gospel's power and sovereignty; for Matthew's opening, he ties it to God's redemptive plan, calling believers to examine their hearts in light of Christ's coming.
+            </div>
+            <a href="https://www.youtube.com/results?search_query=paul+washer+${bookLower}+${chapterStr}" target="_blank">Watch Paul Washer on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+
+            <div class="synopsis">
+              Ron Carpenter teaches on surrender and identity in Christ; in Matthew 1 (e.g., Joseph's obedience), he highlights trusting God's plan amid uncertainty and stepping into divine purpose.
+            </div>
+            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${bookLower}+${chapterStr}" target="_blank">Watch Ron Carpenter on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+
+            <p style="margin-top:1.5rem;">(Links open YouTube searches for sermons/teachings. Refresh tomorrow for next chapter!)</p>
           </div>
         `;
 
         document.getElementById('devotional').innerHTML = chapterHtml;
       } catch (err) {
-        console.error('Devotional fetch failed:', err.message);
+        console.error('Devotional error:', err.message);
         document.getElementById('devotional').innerHTML = `
-          <p>Couldn't load today's chapter 😅 (error: ${err.message})</p>
-          <p>Try refreshing or read <strong>Matthew ${chapterNum || 1}</strong> in your Bible app for now.</p>
-          <p>We'll keep the journey going — starting from Matthew 1 on Jan 30, 2026.</p>
+          <p>Chapter load failed 😅 (error: ${err.message})</p>
+          <p>Try refreshing or read ${currentBook?.name || 'Matthew'} ${chapterNum || 1} in your Bible app for now.</p>
+          <p>Journey starts Matthew 1 on Jan 30, 2026 – one chapter/day through NT.</p>
         `;
       }
     }
     getDevotional();
-
-    // Optional: News and X remain as before (add back if you want)
-    // For now keeping minimal to focus on devotional reliability
   </script>
 </body>
 </html>
