@@ -5,84 +5,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Noah's Vibe Dashboard ☕</title>
   <style>
-    :root { --bg: #4CBB17; --card: #ffffff; --text: #222222; --accent: #006400; --green: #008000; --red: #ff0000; }
-    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; box-sizing: border-box; }
-    h1 { text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: var(--accent); text-shadow: 0 0 10px rgba(0,100,0,0.3); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; max-width: 1400px; margin: 0 auto; }
-    .card { background: var(--card); border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 1px solid rgba(0,100,0,0.2); transition: transform 0.2s; }
-    .card:hover { transform: translateY(-5px); }
-    .card h2 { margin: 0 0 1rem; font-size: 1.4rem; color: var(--accent); border-bottom: 1px solid rgba(0,100,0,0.3); padding-bottom: 0.5rem; }
+    :root {
+      --bg: #4CBB17; /* Kelly Green! */
+      --card: #ffffff; /* White cards */
+      --text: #222222;
+      --accent: #006400;
+      --green: #008000;
+      --red: #ff0000;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(0,100,0,0.3);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0,100,0,0.2);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h2 {
+      margin: 0 0 1rem;
+      font-size: 1.4rem;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(0,100,0,0.3);
+      padding-bottom: 0.5rem;
+    }
+    /* Make devotional card span ~half the page */
+    .devotional-card {
+      grid-column: span 2; /* spans two columns on wide screens */
+      min-height: 800px;   /* gives it serious vertical space */
+    }
+    #devotional {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      max-height: 700px;
+      overflow-y: auto;
+      padding-right: 1rem;
+    }
+    #devotional .verse {
+      margin-bottom: 0.8rem;
+    }
+    #devotional .overviews {
+      margin-top: 2rem;
+      border-top: 1px solid rgba(0,100,0,0.3);
+      padding-top: 1.5rem;
+    }
+    #devotional .overviews a {
+      display: block;
+      margin-bottom: 0.8rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
     #weather { font-size: 1.2rem; }
     #weather .temp { font-size: 3rem; font-weight: bold; margin: 0.5rem 0; }
-    .markets { font-size: 1.3rem; }
-    .markets .item { margin: 1rem 0; }
-    .markets .yield, .markets .return { font-size: 2rem; font-weight: bold; }
-    .positive { color: var(--green); }
-    .negative { color: var(--red); }
     #calendar iframe { width: 100%; height: 500px; border: none; border-radius: 12px; }
     #news ul { list-style: none; padding: 0; margin: 0; }
     #news li { margin-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem; }
     #news a { color: var(--accent); text-decoration: none; }
     #news a:hover { text-decoration: underline; }
-    #devotional { font-size: 1.1rem; max-height: 600px; overflow-y: auto; }
-    #devotional .verse { margin-bottom: 0.5rem; }
-    #devotional .overviews { margin-top: 1.5rem; border-top: 1px solid rgba(0,100,0,0.3); padding-top: 1rem; }
-    #devotional .overviews a { display: block; margin-bottom: 0.5rem; color: var(--accent); }
     #x-vibes { min-height: 500px; }
-    footer { text-align: center; margin-top: 3rem; opacity: 0.8; font-size: 0.9rem; }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Noah's Vibe Dashboard 🌧️📈🗓️📰🙏</h1>
+  <h1>Noah's Vibe Dashboard 🌧️🗓️📰🙏</h1>
 
   <div class="grid">
+    <!-- Weather -->
     <div class="card">
       <h2>Essex, MD Weather</h2>
       <div id="weather">Loading weather...</div>
     </div>
 
-    <div class="card">
-      <h2>Markets Snapshot</h2>
-      <div class="markets">
-        <div id="voo" class="item">Loading VOO...</div>
-        <div id="treasury" class="item">Loading 10Y Treasury...</div>
-        <div id="mortgage" class="item">Loading 30Y Mortgage...</div>
-      </div>
-    </div>
-
+    <!-- Calendar -->
     <div class="card" id="calendar">
       <h2>My Calendar</h2>
-      <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York" style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
-      <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">↑ Swap src= with your personal embed code from Google Calendar settings</p>
+      <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York"
+              style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
+      <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">
+        ↑ Replace the src= with your personal calendar embed code from Google Calendar settings
+      </p>
     </div>
 
+    <!-- News -->
     <div class="card">
       <h2>Current News (Diverse Sources)</h2>
       <div id="news">Loading headlines...</div>
     </div>
 
+    <!-- X Vibes -->
     <div class="card" id="x-vibes">
       <h2>X Vibes (Breaking News)</h2>
       <a class="twitter-timeline" data-height="500" href="https://twitter.com/search?q=breaking%20news">X Breaking News</a>
       <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
 
-    <div class="card">
+    <!-- Big Devotional Card -->
+    <div class="card devotional-card">
       <h2>Daily Devotional (NKJV - New Testament Journey)</h2>
-      <div id="devotional">Loading chapter...</div>
+      <div id="devotional">Loading today's chapter...</div>
     </div>
   </div>
 
-  <footer>Vibe coded by Grok • Jan 30, 2026 • Essex, MD • Refresh for live updates</footer>
+  <footer>Vibe coded by Grok • Jan 30, 2026 • Essex, MD • Refresh for updates</footer>
 
   <script>
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/';  // Try this - request temp access at https://cors-anywhere.herokuapp.com/corsdemo first
+    const corsProxy = 'https://api.allorigins.win/raw?url=';
 
+    // Weather (direct - usually works)
     async function getWeather() {
       try {
         const url = 'https://api.open-meteo.com/v1/forecast?latitude=39.309&longitude=-76.475&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York';
         const res = await fetch(url);
-        if (!res.ok) throw new Error('Weather ' + res.status);
+        if (!res.ok) throw new Error('Weather HTTP ' + res.status);
         const data = await res.json();
         const current = data.current;
         const weatherCodes = { 0: 'Clear sky 🌤️', 1: 'Mainly clear', 2: 'Partly cloudy ☁️', 3: 'Overcast', 45: 'Fog', 51: 'Light drizzle', 61: 'Rain 🌧️', 71: 'Snow ❄️', 80: 'Rain showers' };
@@ -94,61 +158,99 @@
           <p>${desc} • Wind: ${Math.round(current.wind_speed_10m)} mph</p>
         `;
       } catch (err) {
-        console.error('Weather:', err.message);
+        console.error('Weather error:', err);
         document.getElementById('weather').innerHTML = 'Weather failed 😅';
       }
     }
     getWeather();
 
-    async function getMarkets() {
+    // Devotional - with proxy and fallback
+    async function getDevotional() {
       try {
-        // VOO
-        const vooRes = await fetch(corsProxy + 'https://query1.finance.yahoo.com/v8/finance/chart/VOO?range=5d&interval=1d');
-        if (!vooRes.ok) throw new Error('VOO ' + vooRes.status);
-        const vooData = await vooRes.json();
-        const vooMeta = vooData.chart.result[0].meta;
-        const vooPrice = vooMeta.regularMarketPrice || vooMeta.previousClose;
-        const vooPrev = vooMeta.previousClose;
-        const vooChangePct = ((vooPrice - vooPrev) / vooPrev * 100).toFixed(2);
-        const ytdStart = 626;
-        const vooYTD = ((vooPrice - ytdStart) / ytdStart * 100).toFixed(2);
-        const vooClass = vooChangePct >= 0 ? 'positive' : 'negative';
-        document.getElementById('voo').innerHTML = `
-          <p><strong>VOO Price:</strong> $${vooPrice.toFixed(2)}</p>
-          <p>Today's: <span class="${vooClass}">${vooChangePct >= 0 ? '+' : ''}${vooChangePct}%</span></p>
-          <p class="return ${vooClass}">YTD: +${vooYTD}%</p>
+        const ntBooks = [
+          { name: 'Matthew', chapters: 28, bookId: 40 },
+          { name: 'Mark', chapters: 16, bookId: 41 },
+          { name: 'Luke', chapters: 24, bookId: 42 },
+          { name: 'John', chapters: 21, bookId: 43 },
+          { name: 'Acts', chapters: 28, bookId: 44 },
+          { name: 'Romans', chapters: 16, bookId: 45 },
+          { name: '1 Corinthians', chapters: 16, bookId: 46 },
+          { name: '2 Corinthians', chapters: 13, bookId: 47 },
+          { name: 'Galatians', chapters: 6, bookId: 48 },
+          { name: 'Ephesians', chapters: 6, bookId: 49 },
+          { name: 'Philippians', chapters: 4, bookId: 50 },
+          { name: 'Colossians', chapters: 4, bookId: 51 },
+          { name: '1 Thessalonians', chapters: 5, bookId: 52 },
+          { name: '2 Thessalonians', chapters: 3, bookId: 53 },
+          { name: '1 Timothy', chapters: 6, bookId: 54 },
+          { name: '2 Timothy', chapters: 4, bookId: 55 },
+          { name: 'Titus', chapters: 3, bookId: 56 },
+          { name: 'Philemon', chapters: 1, bookId: 57 },
+          { name: 'Hebrews', chapters: 13, bookId: 58 },
+          { name: 'James', chapters: 5, bookId: 59 },
+          { name: '1 Peter', chapters: 5, bookId: 60 },
+          { name: '2 Peter', chapters: 3, bookId: 61 },
+          { name: '1 John', chapters: 5, bookId: 62 },
+          { name: '2 John', chapters: 1, bookId: 63 },
+          { name: '3 John', chapters: 1, bookId: 64 },
+          { name: 'Jude', chapters: 1, bookId: 65 },
+          { name: 'Revelation', chapters: 22, bookId: 66 }
+        ];
+
+        const startDate = new Date('2026-01-30T00:00:00');
+        const today = new Date();
+        const daysSince = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const totalChapters = 260;
+        const chapterIndex = daysSince % totalChapters;
+
+        let cumulative = 0;
+        let currentBook = null;
+        let chapterNum = 0;
+        for (const book of ntBooks) {
+          if (chapterIndex < cumulative + book.chapters) {
+            currentBook = book;
+            chapterNum = (chapterIndex - cumulative) + 1;
+            break;
+          }
+          cumulative += book.chapters;
+        }
+
+        const devoUrl = `https://bolls.life/get-text/NKJV/${currentBook.bookId}/${chapterNum}/`;
+        const res = await fetch(corsProxy + devoUrl);
+        if (!res.ok) {
+          throw new Error('Devotional HTTP ' + res.status);
+        }
+        const verses = await res.json();
+
+        let chapterHtml = `<h3>${currentBook.name} ${chapterNum} (NKJV)</h3>`;
+        verses.forEach(v => {
+          chapterHtml += `<p class="verse"><strong>${v.verse}.</strong> ${v.text}</p>`;
+        });
+
+        chapterHtml += `
+          <div class="overviews">
+            <h4>Scholarly Overviews:</h4>
+            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Voddie Baucham on ${currentBook.name} ${chapterNum}</a>
+            <a href="https://www.youtube.com/results?search_query=paul+washer+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Paul Washer on ${currentBook.name} ${chapterNum}</a>
+            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${currentBook.name.toLowerCase()}+${chapterNum}" target="_blank">Ron Carpenter on ${currentBook.name} ${chapterNum}</a>
+            <p>(Click links for sermons/teachings • Tomorrow: next chapter in sequence)</p>
+          </div>
         `;
 
-        // 10Y Treasury
-        const tnxRes = await fetch(corsProxy + 'https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?range=5d&interval=1d');
-        if (!tnxRes.ok) throw new Error('TNX ' + tnxRes.status);
-        const tnxData = await tnxRes.json();
-        const tnxMeta = tnxData.chart.result[0].meta;
-        const tnxYield = tnxMeta.regularMarketPrice || tnxMeta.previousClose;
-        const tnxPrev = tnxMeta.previousClose;
-        const tnxChange = (tnxYield - tnxPrev).toFixed(3);
-        const tnxClass = Number(tnxChange) >= 0 ? 'positive' : 'negative';
-        document.getElementById('treasury').innerHTML = `
-          <p><strong>10Y Treasury Yield:</strong> ${tnxYield.toFixed(3)}%</p>
-          <p>Change: <span class="${tnxClass}">${Number(tnxChange) >= 0 ? '+' : ''}${tnxChange}%</span></p>
-        `;
-
-        document.getElementById('mortgage').innerHTML = `
-          <p><strong>Avg 30Y Fixed Mortgage:</strong> 6.10%</p>
-          <p>(Freddie Mac weekly as of Jan 29, 2026 • Varies by lender)</p>
-        `;
+        document.getElementById('devotional').innerHTML = chapterHtml;
       } catch (err) {
-        console.error('Markets:', err.message);
-        document.getElementById('voo').innerHTML = 'VOO failed 😅 (console for details)';
-        document.getElementById('treasury').innerHTML = 'Treasury failed 😅 ~4.25% fallback';
+        console.error('Devotional fetch failed:', err.message);
+        document.getElementById('devotional').innerHTML = `
+          <p>Couldn't load today's chapter 😅 (error: ${err.message})</p>
+          <p>Try refreshing or read <strong>Matthew ${chapterNum || 1}</strong> in your Bible app for now.</p>
+          <p>We'll keep the journey going — starting from Matthew 1 on Jan 30, 2026.</p>
+        `;
       }
     }
-    getMarkets();
-    setInterval(getMarkets, 300000);
+    getDevotional();
 
-    // News, Devotional - add proxy if needed, but keep as previous for now (add corsProxy + source.url or devoUrl if failing)
-
-    // ... (add your previous getNews and getDevotional functions here, with corsProxy + url for fetches)
+    // Optional: News and X remain as before (add back if you want)
+    // For now keeping minimal to focus on devotional reliability
   </script>
 </body>
 </html>
