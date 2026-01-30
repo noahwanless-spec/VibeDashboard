@@ -54,37 +54,41 @@
       border-bottom: 1px solid rgba(0,100,0,0.3);
       padding-bottom: 0.5rem;
     }
-    /* Big devotional - top-right, spans ~4 boxes (2x2) */
     .devotional-card {
-      grid-column: 3 / span 2; /* Starts in column 3, spans 2 */
-      grid-row: 1 / span 2;    /* Top row, spans 2 rows */
-      min-height: 1000px;
+      grid-column: 3 / span 2;
+      grid-row: 1 / span 2;
+      min-height: 1100px;
     }
     #devotional {
-      font-size: 1.15rem;
-      line-height: 1.6;
-      max-height: 900px;
+      font-size: 1.2rem;
+      line-height: 1.7;
+      max-height: 1000px;
       overflow-y: auto;
       padding-right: 1rem;
     }
     #devotional .verse {
-      margin-bottom: 0.8rem;
+      margin-bottom: 1rem;
     }
     #devotional .overviews {
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       border-top: 1px solid rgba(0,100,0,0.3);
-      padding-top: 1.5rem;
+      padding-top: 2rem;
     }
-    #devotional .overviews a {
-      display: block;
-      margin-bottom: 1rem;
+    #devotional .overviews h5 {
+      margin: 1.5rem 0 0.5rem;
       color: var(--accent);
-      font-weight: 500;
     }
     #devotional .synopsis {
       font-style: italic;
-      margin-bottom: 0.5rem;
       color: #444;
+      margin-bottom: 1rem;
+    }
+    #devotional .prayer {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: rgba(0,100,0,0.05);
+      border-radius: 8px;
+      font-style: italic;
     }
     #weather { font-size: 1.2rem; }
     #weather .temp { font-size: 3rem; font-weight: bold; margin: 0.5rem 0; }
@@ -106,36 +110,28 @@
   <h1>Noah's Vibe Dashboard 🌧️🗓️📰🙏</h1>
 
   <div class="grid">
-    <!-- Weather (top-left) -->
     <div class="card">
       <h2>Essex, MD Weather</h2>
       <div id="weather">Loading weather...</div>
     </div>
 
-    <!-- Calendar (next) -->
     <div class="card" id="calendar">
       <h2>My Calendar</h2>
-      <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York"
-              style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
-      <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">
-        ↑ Replace src= with your personal embed from Google Calendar settings
-      </p>
+      <iframe src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York" style="border: 0" width="100%" height="500" frameborder="0" scrolling="no"></iframe>
+      <p style="font-size:0.9rem; margin-top:1rem; opacity:0.7;">↑ Replace src= with your personal embed</p>
     </div>
 
-    <!-- News -->
     <div class="card">
       <h2>Current News (Diverse Sources)</h2>
       <div id="news">Loading headlines...</div>
     </div>
 
-    <!-- X Vibes -->
     <div class="card" id="x-vibes">
-      <h2>X Vibes (Breaking News)</h2>
-      <a class="twitter-timeline" data-height="500" href="https://twitter.com/search?q=breaking%20news">X Breaking News</a>
+      <h2>X Vibes (@Wanless_ Recent Posts)</h2>
+      <a class="twitter-timeline" data-height="500" href="https://twitter.com/Wanless_">Tweets by @Wanless_</a>
       <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
 
-    <!-- Large Devotional - top-right, big space -->
     <div class="card devotional-card">
       <h2>Daily Devotional (NKJV - New Testament Journey)</h2>
       <div id="devotional">Loading today's chapter...</div>
@@ -147,7 +143,7 @@
   <script>
     const corsProxy = 'https://api.allorigins.win/raw?url=';
 
-    // Weather fetch (unchanged - direct)
+    // Weather unchanged
     async function getWeather() {
       try {
         const url = 'https://api.open-meteo.com/v1/forecast?latitude=39.309&longitude=-76.475&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York';
@@ -170,7 +166,7 @@
     }
     getWeather();
 
-    // Devotional - proxy + synopsis for teachers
+    // Devotional with Unashamed added, longer synopses + prayer
     async function getDevotional() {
       try {
         const ntBooks = [
@@ -231,7 +227,6 @@
           chapterHtml += `<p class="verse"><strong>${v.verse}.</strong> ${v.text}</p>`;
         });
 
-        // Synopses (dynamic based on book/chapter - general from known teachings)
         const bookLower = currentBook.name.toLowerCase();
         const chapterStr = chapterNum;
 
@@ -239,32 +234,45 @@
           <div class="overviews">
             <h4>Scholarly Overviews & Teachings:</h4>
 
-            <div class="synopsis">
-              Voddie Baucham often emphasizes how Matthew's genealogy and early chapters fulfill OT promises, showing Jesus as the promised seed and Messiah from David's line – a Christ-centered view of Scripture's unity.
-            </div>
-            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${bookLower}+${chapterStr}" target="_blank">Watch Voddie Baucham on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+            <h5>Voddie Baucham</h5>
+            <p class="synopsis">
+              Voddie Baucham teaches with a strong focus on Christ-centered exposition and the unity of Scripture. In Matthew, particularly the genealogy and early chapters, he highlights how Jesus fulfills Old Testament promises as the promised seed from Abraham and David, demonstrating God's sovereign, redemptive plan across history. He rejects moralistic or cultural interpretations, urging believers to see the Bible as one cohesive story pointing to Christ. His approach calls for gospel transformation that combats compromise and equips families to stand firm in truth amid cultural pressures.
+            </p>
+            <a href="https://www.youtube.com/results?search_query=voddie+baucham+${bookLower}+${chapterStr}" target="_blank">Watch Voddie Baucham on ${currentBook.name} ${chapterNum}</a>
 
-            <div class="synopsis">
-              Paul Washer focuses on the gospel's power and sovereignty; for Matthew's opening, he ties it to God's redemptive plan, calling believers to examine their hearts in light of Christ's coming.
-            </div>
-            <a href="https://www.youtube.com/results?search_query=paul+washer+${bookLower}+${chapterStr}" target="_blank">Watch Paul Washer on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+            <h5>Paul Washer</h5>
+            <p class="synopsis">
+              Paul Washer emphasizes God's sovereignty, the true gospel, and costly discipleship. For Matthew's narratives—like Jesus' birth, temptation, or kingdom teachings—he connects them to God's eternal purpose and the need for genuine repentance over superficial faith. He warns against easy-believism, stressing that following Christ demands heart examination, obedience, and reliance on grace alone. His messages challenge believers to live unashamedly for Christ, bearing fruit that honors God rather than self, and to endure suffering with eternal perspective.
+            </p>
+            <a href="https://www.youtube.com/results?search_query=paul+washer+${bookLower}+${chapterStr}" target="_blank">Watch Paul Washer on ${currentBook.name} ${chapterNum}</a>
 
-            <div class="synopsis">
-              Ron Carpenter teaches on surrender and identity in Christ; in Matthew 1 (e.g., Joseph's obedience), he highlights trusting God's plan amid uncertainty and stepping into divine purpose.
-            </div>
-            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${bookLower}+${chapterStr}" target="_blank">Watch Ron Carpenter on ${currentBook.name} ${chapterNum} (YouTube search)</a>
+            <h5>Ron Carpenter</h5>
+            <p class="synopsis">
+              Ron Carpenter delivers practical, motivational teaching centered on identity in Christ and stepping into God's calling. In Matthew passages (e.g., Joseph's obedience in chapter 1 or kingdom principles), he encourages surrendering fears to trust God's plan, breaking free from limiting beliefs, and pursuing breakthrough faith. He often ties Scripture to personal destiny, urging believers to align with God's promises for victorious living, family strength, and purpose-driven impact in everyday life.
+            </p>
+            <a href="https://www.youtube.com/results?search_query=ron+carpenter+${bookLower}+${chapterStr}" target="_blank">Watch Ron Carpenter on ${currentBook.name} ${chapterNum}</a>
 
-            <p style="margin-top:1.5rem;">(Links open YouTube searches for sermons/teachings. Refresh tomorrow for next chapter!)</p>
+            <h5>Unashamed with the Robertson Family</h5>
+            <p class="synopsis">
+              The Unashamed podcast (Phil, Jase, Al Robertson + guests) brings unfiltered, family-centered Bible teaching with real-life application. When they reference Matthew (e.g., Jesus' genealogy, birth story, or kingdom teachings), they emphasize God's sovereign plan unfolding through ordinary people, the gospel's power to transform lives, and living unashamed in faith. Phil often ties it to redemptive history and moral truth, while Jase/Al highlight practical obedience, grace amid imperfection, and how Jesus fulfills promises as the ultimate King and Savior. Episodes stress sharing the gospel boldly, family discipleship, and trusting God's timing in uncertainty — perfect for everyday believers.
+            </p>
+            <a href="https://www.youtube.com/results?search_query=unashamed+podcast+${bookLower}+${chapterStr}+OR+matthew+robertson" target="_blank">Watch Unashamed podcast on ${currentBook.name} ${chapterNum} or Matthew themes</a>
+
+            <h5>Closing Prayer</h5>
+            <div class="prayer">
+              Heavenly Father, thank You for the rich truth in ${currentBook.name} chapter ${chapterStr}, revealing Jesus as the promised Messiah, sovereign King, and our Savior. Help us grasp Your redemptive plan through Scripture's unity, live unashamed in the gospel's power, and surrender fully to Your will like Joseph or the disciples. Strengthen our families, deepen our repentance, and equip us to share Your truth boldly amid life's uncertainties. May we trust Your timing, obey with joy, and reflect Christ's love daily. In Jesus' name, Amen.
+            </div>
+
+            <p style="margin-top:2rem;">(Links open YouTube searches for sermons/podcast episodes. Refresh tomorrow for next chapter!)</p>
           </div>
         `;
 
         document.getElementById('devotional').innerHTML = chapterHtml;
       } catch (err) {
-        console.error('Devotional error:', err.message);
+        console.error('Devotional error:', err);
         document.getElementById('devotional').innerHTML = `
           <p>Chapter load failed 😅 (error: ${err.message})</p>
-          <p>Try refreshing or read ${currentBook?.name || 'Matthew'} ${chapterNum || 1} in your Bible app for now.</p>
-          <p>Journey starts Matthew 1 on Jan 30, 2026 – one chapter/day through NT.</p>
+          <p>Try refreshing or read today's chapter in your Bible app. Journey continues one day at a time through the New Testament.</p>
         `;
       }
     }
