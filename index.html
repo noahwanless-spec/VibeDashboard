@@ -204,7 +204,7 @@
     <div class="card">
       <h2>Ask Grok</h2>
       <div id="chat-messages"></div>
-      <input type="text" id="chat-input" placeholder="Ask Grok anything... (e.g., explain Romans 12:1-2)" />
+      <input type="text" id="chat-input" placeholder="Ask Grok anything... (e.g., explain Romans 13)" />
     </div>
 
     <div class="card devotional-card">
@@ -273,28 +273,26 @@
         const today = new Date();
         const daysSince = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 
-        // Start at Romans 12 (chapter index 11 in Romans, since Romans 1-11 are skipped)
+        // Start at Romans 12
         const romansStartChapter = 12;
-        const romansChaptersAfterStart = ntBooks[0].chapters - (romansStartChapter - 1);
-        const remainingChapters = romansChaptersAfterStart + ntBooks.slice(1).reduce((sum, b) => sum + b.chapters, 0);
-        const chapterIndex = daysSince % remainingChapters;
+        const romansChaptersRemaining = ntBooks[0].chapters - (romansStartChapter - 1);
+        const chaptersAfterRomans = ntBooks.slice(1).reduce((sum, b) => sum + b.chapters, 0);
+        const totalChapters = romansChaptersRemaining + chaptersAfterRomans;
+        const chapterIndex = daysSince % totalChapters;
 
-        let currentBook = ntBooks[0];
+        let currentBookIndex = 0;
         let chapterNum = romansStartChapter + chapterIndex;
 
-        if (chapterNum > currentBook.chapters) {
-          let overflow = chapterNum - currentBook.chapters;
-          let bookIndex = 1;
-          while (overflow > 0 && bookIndex < ntBooks.length) {
-            currentBook = ntBooks[bookIndex];
-            if (overflow <= currentBook.chapters) {
-              chapterNum = overflow;
-              break;
-            }
-            overflow -= currentBook.chapters;
-            bookIndex++;
+        if (chapterNum > ntBooks[0].chapters) {
+          chapterNum -= ntBooks[0].chapters - (romansStartChapter - 1);
+          currentBookIndex = 1;
+          while (chapterNum > ntBooks[currentBookIndex].chapters && currentBookIndex < ntBooks.length - 1) {
+            chapterNum -= ntBooks[currentBookIndex].chapters;
+            currentBookIndex++;
           }
         }
+
+        const currentBook = ntBooks[currentBookIndex];
 
         const devoUrl = `https://bolls.life/get-text/NKJV/${currentBook.bookId}/${chapterNum}/`;
         const res = await fetch(corsProxy + devoUrl);
@@ -323,31 +321,31 @@
 
             <h5>Voddie Baucham</h5>
             <p class="synopsis">
-              Voddie Baucham teaches with a strong focus on Christ-centered exposition and the unity of Scripture. In Romans, particularly chapters like 12, he emphasizes living as a living sacrifice, renewing the mind, and using spiritual gifts for the body of Christ. He rejects moralistic readings, urging believers to see transformation through the gospel, not self-effort, and to stand firm against cultural conformity while living out God's will in community.
+              The call to present your bodies as living sacrifices is not optional but the only reasonable response to God’s mercies. Renewing the mind is the key to transformation — not conforming to the world’s patterns but being shaped by God’s truth so you can discern and live out His will.
             </p>
             <a href="https://www.youtube.com/results?search_query=voddie+baucham+${bookLower}+${chapterStr}" target="_blank">Watch Voddie Baucham on ${currentBook.name} ${chapterNum}</a>
 
             <h5>Paul Washer</h5>
             <p class="synopsis">
-              Paul Washer stresses God's sovereignty and the true gospel's call to costly discipleship. In Romans 12, he connects the call to present your bodies as living sacrifices to the need for genuine repentance and transformation by the renewing of the mind. He warns against superficial Christianity, urging believers to examine their hearts, hate evil, cling to good, and live in humble service to others with the power of the Spirit.
+              Don’t be deceived into thinking you can offer God a half-hearted life. The gospel demands everything — present your body as a living sacrifice, holy and acceptable. True renewal of the mind comes through immersion in Scripture and dependence on the Spirit, leading to a life that hates evil and clings to good.
             </p>
             <a href="https://www.youtube.com/results?search_query=paul+washer+${bookLower}+${chapterStr}" target="_blank">Watch Paul Washer on ${currentBook.name} ${chapterNum}</a>
 
             <h5>Ron Carpenter</h5>
             <p class="synopsis">
-              Ron Carpenter delivers practical, motivational teaching centered on identity in Christ and stepping into God's calling. In Romans 12, he highlights renewing the mind to break free from worldly patterns, discovering and using spiritual gifts, and loving others sincerely. He encourages believers to live victoriously by aligning with God's purpose, overcoming evil with good, and walking in faith-filled obedience.
+              God has given each of us gifts — don’t bury them. Renew your mind so you can see your purpose clearly and use what God has placed in you to bless others. Love must be genuine, hate evil, hold fast to good, and outdo one another in showing honor — that’s how you live a transformed life.
             </p>
             <a href="https://www.youtube.com/results?search_query=ron+carpenter+${bookLower}+${chapterStr}" target="_blank">Watch Ron Carpenter on ${currentBook.name} ${chapterNum}</a>
 
             <h5>Unashamed with the Robertson Family</h5>
             <p class="synopsis">
-              The Unashamed podcast brings unfiltered, family-centered Bible teaching with real-life application. In Romans 12, they often discuss living sacrifices, not conforming to the world, and using gifts in community. Phil ties it to God's redemptive plan and moral truth, while Jase and Al emphasize practical obedience, grace in imperfection, and sharing the gospel boldly. Episodes highlight family discipleship, trusting God's timing, and living unashamed in faith.
+              Don’t let the world squeeze you into its mold. Be transformed by renewing your mind through God’s Word. Use your gifts to serve the body of Christ, love sincerely, hate what is evil, and overcome evil with good — that’s real faith lived out in family and community.
             </p>
             <a href="https://www.youtube.com/results?search_query=unashamed+podcast+${bookLower}+${chapterStr}+OR+romans+robertson" target="_blank">Watch Unashamed podcast on ${currentBook.name} ${chapterNum} or Romans themes</a>
 
             <h5>Closing Prayer</h5>
             <div class="prayer">
-              Heavenly Father, thank You for the powerful truth in ${currentBook.name} chapter ${chapterStr}, calling us to present our bodies as living sacrifices, renew our minds, and live in genuine love and service. Help us not conform to this world but be transformed by Your Spirit. Strengthen us to use our gifts faithfully, overcome evil with good, and walk humbly in Your will. Guide our families, deepen our faith, and make us bold witnesses for Christ. In Jesus' name, Amen.
+              Heavenly Father, thank You for calling us in ${currentBook.name} ${chapterStr} to offer ourselves as living sacrifices and to be transformed by the renewing of our minds. Help us not conform to this world but discern Your perfect will. Give us grace to use our gifts faithfully, love genuinely, hate evil, cling to good, and overcome evil with good. Strengthen our families, deepen our faith, and make us bold witnesses for Christ. In Jesus' name, Amen.
             </div>
 
             <p style="margin-top:2rem;">(Links open YouTube searches for sermons/podcast episodes. Refresh tomorrow for next chapter!)</p>
@@ -357,28 +355,46 @@
         document.getElementById('devotional').innerHTML = chapterHtml;
       } catch (err) {
         console.error('Devotional error:', err);
-        document.getElementById('devotional').innerHTML = 'Chapter load failed 😅 – try refreshing or read Romans 12 in your Bible app.';
+        document.getElementById('devotional').innerHTML = 'Chapter load failed 😅 – try refreshing or read Romans 13 in your Bible app.';
       }
     }
     getDevotional();
 
-    // Daily Home Workout
+    // Daily Home Workout - consistent structure + variety
     function getWorkout() {
       const startDate = new Date('2026-01-30T00:00:00');
       const today = new Date();
       const daysSince = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-      const variant = daysSince % 5;
-      const baseReps = 10 + (daysSince % 6) * 2;
+
+      const baseReps = 10 + (daysSince % 11); // 10–20 range
       const sets = 3;
+      const restTime = '45–60 sec';
+
+      const legExercises = [
+        'Air Squats', 'Walking Lunges (per leg)', 'Bulgarian Split Squats (per leg)', 'Glute Bridges', 'Wall Sit (hold)'
+      ];
+      const pushExercises = [
+        'Push-ups', 'Diamond Push-ups', 'Pike Push-ups', 'Hand-Release Push-ups', 'Tricep Dips (floor or chair)'
+      ];
+      const coreExercises = [
+        'Crunches', 'Bicycle Crunches (per side)', 'Russian Twists (per side)', 'Plank Hold (time)', 'Leg Raises'
+      ];
+      const extraExercises = [
+        'Mountain Climbers (per side)', 'Burpees', 'Superman Holds (time)', 'Jumping Jacks', 'High Knees (time)'
+      ];
+
+      const leg = legExercises[daysSince % legExercises.length];
+      const push = pushExercises[daysSince % pushExercises.length];
+      const core = coreExercises[daysSince % coreExercises.length];
+      const extra = extraExercises[daysSince % extraExercises.length];
 
       let workoutHtml = '<ul>';
-      workoutHtml += `<li>${sets} sets of ${baseReps} Push-ups (rest 45 sec)</li>`;
-      workoutHtml += `<li>${sets} sets of ${baseReps + variant} Bodyweight Squats (rest 45 sec)</li>`;
-      workoutHtml += `<li>${sets} sets of ${baseReps + variant * 2} Crunches or Plank holds (20–40 sec each, rest 30 sec)</li>`;
-      if (variant >= 2) workoutHtml += `<li>${sets} sets of 10–15 Lunges per leg (rest 45 sec)</li>`;
-      if (variant === 4) workoutHtml += `<li>Bonus: 2 min Wall Sit or Superman holds</li>`;
+      workoutHtml += `<li>${sets} sets of ${baseReps + (daysSince % 5)} ${leg} (rest ${restTime})</li>`;
+      workoutHtml += `<li>${sets} sets of ${baseReps} ${push} (rest ${restTime})</li>`;
+      workoutHtml += `<li>${sets} sets of ${baseReps + (daysSince % 7)} ${core} (rest ${restTime})</li>`;
+      workoutHtml += `<li>${sets} sets of ${baseReps + (daysSince % 4)} ${extra} (rest ${restTime})</li>`;
       workoutHtml += '</ul>';
-      workoutHtml += '<p>~15 min total. Warm up 2 min, cool down stretch. Change tomorrow!</p>';
+      workoutHtml += '<p>~15 min total. Warm up 2 min (jog in place/arm circles), cool down stretch. Legs + push + core every day — extra rotates.</p>';
 
       document.getElementById('workout').innerHTML = workoutHtml;
     }
@@ -396,10 +412,10 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         const mockReplies = [
-          "Hey Noah, Romans 12 is powerful – living sacrifice, renewing the mind, using your gifts. How's it hitting you today?",
-          "Grok here. Want a quick breakdown of today's chapter or workout motivation?",
-          "Vibe check: pushups and Scripture both build strength. What's on your mind?",
-          "Unashamed style: trust God's plan, stay bold. Need prayer or explanation?"
+          "Hey Noah, Romans 13 is powerful – love fulfills the law, submit to authorities, put on Christ. How's it speaking to you?",
+          "Grok here. Want a breakdown of today's chapter or some workout encouragement?",
+          "Vibe check: consistency in Scripture and training builds real strength. What's on your mind today?",
+          "Unashamed style: live honorably, love your neighbor, walk in the light. Need prayer or insight?"
         ];
         const reply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
         setTimeout(() => {
